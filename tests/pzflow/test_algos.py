@@ -61,8 +61,8 @@ def test_pzflow(inputs, zb_expected):
     estim_config_dict = dict(hdf5_groupname="photometry", model="PZflowPDF.pkl")
 
     # zb_expected = np.array([0.15, 0.14, 0.11, 0.14, 0.12, 0.14, 0.15, 0.16, 0.11, 0.12])
-    train_algo = pzflow.PZFlowInformer
-    pz_algo = pzflow.PZFlowEstimator
+    train_algo = pzflow_nf.PZFlowInformer
+    pz_algo = pzflow_nf.PZFlowEstimator
     results, rerun_results, rerun3_results = one_algo(
         "PZFlow", train_algo, pz_algo, train_config_dict, estim_config_dict
     )
