@@ -66,7 +66,7 @@ def_errornames=dict(mag_err_u_lsst="mag_u_lsst_err",
                     mag_err_y_lsst="mag_y_lsst_err")
 
 
-class PZFlowInformer(CatInformer):
+class Inform_PZFlowPDF(CatInformer):
     """ Subclass to train a pzflow-based estimator
     """
     name = 'Inform_PZFlowPdf'
@@ -151,10 +151,10 @@ class PZFlowInformer(CatInformer):
 
 
 
-class PZFlowEstimator(CatEstimator):
+class PZFlowPDF(CatEstimator):
     """CatEstimator which uses PZFlow
     """
-    name = 'PZFlowEstimator'
+    name = 'PZFlowPDF'
     inputs = [('model', FlowHandle),
               ('input', TableHandle)]
     config_options = CatEstimator.config_options.copy()
