@@ -6,13 +6,13 @@ future update
 """
 
 import numpy as np
+import pandas as pd
+import qp
 
 from ceci.config import StageParameter as Param
 from rail.estimation.estimator import CatEstimator, CatInformer
 from rail.core.data import TableHandle
 from rail.tools.flow_handle import FlowHandle
-import pandas as pd
-import qp
 
 
 def computemeanstd(df):
@@ -118,9 +118,9 @@ class PZFlowInformer(CatInformer):
         train a flow based on the training data
         This is mostly based off of the pzflow example notebook
         """
-        from pzflow import Flow
-        from pzflow.bijectors import Chain, ColorTransform, InvSoftplus
-        from pzflow.bijectors import StandardScaler, RollingSplineCoupling
+        from pzflow import Flow  # pylint: disable=import-outside-toplevel
+        from pzflow.bijectors import Chain, ColorTransform, InvSoftplus  # pylint: disable=import-outside-toplevel
+        from pzflow.bijectors import StandardScaler, RollingSplineCoupling  # pylint: disable=import-outside-toplevel
         if self.config.hdf5_groupname:
             training_data = self.get_data('input')[self.config.hdf5_groupname]
         else:  #pragma: no cover
@@ -224,7 +224,22 @@ class PZFlowEstimator(CatEstimator):
             pdfs = self.model.posterior(flow_df,
                                         column=self.config.redshift_column_name,
                                         grid=self.zgrid)
-        zmode = np.array([self.zgrid[np.argmax(pdf)] for pdf in pdfs]).flatten()
         qp_distn = qp.Ensemble(qp.interp, data=dict(xvals=self.zgrid, yvals=pdfs))
-        qp_distn.set_ancil(dict(zmode=zmode))
+
+        ancil_dict = dict()
+        calculated_point_estimates = []
+        if 'calculated_point_estimates' in self.config:
+            calculated_point_estimates = self.config.calculated_point_estimates
+
+        if 'mode' in calculated_point_estimates:
+            ancil_dict.update(mode = np.array([self.zgrid[np.argmax(pdf)] for pdf in pdfs]).flatten())
+
+        if 'mean' in calculated_point_estimates:
+            ancil_dict.update(mean = qp_distn.mean())
+
+        if 'median' in calculated_point_estimates:
+            ancil_dict.update(median = qp_distn.median())
+
+        if calculated_point_estimates:
+            qp_distn.set_ancil(ancil_dict)
         self._do_chunk_output(qp_distn, start, end, first)

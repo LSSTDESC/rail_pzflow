@@ -14,14 +14,14 @@ DS.__class__.allow_overwrite = True
 
 
 @pytest.mark.parametrize(
-    "inputs, zb_expected",
+    "inputs",
     [
         (False, [0.15, 0.14, 0.11, 0.14, 0.12, 0.14, 0.15, 0.16, 0.11, 0.12]),
         (True, [0.15, 0.14, 0.15, 0.14, 0.12, 0.14, 0.15, 0.12, 0.13, 0.11]),
     ],
 )
 @pytest.mark.slow
-def test_pzflow(inputs, zb_expected):
+def test_pzflow(inputs):
     def_bands = ["u", "g", "r", "i", "z", "y"]
     refcols = [f"mag_{band}_lsst" for band in def_bands]
     def_maglims = dict(
@@ -58,16 +58,19 @@ def test_pzflow(inputs, zb_expected):
         hdf5_groupname="photometry",
         model="PZflowPDF.pkl",
     )
-    estim_config_dict = dict(hdf5_groupname="photometry", model="PZflowPDF.pkl")
+    estim_config_dict = dict(
+        hdf5_groupname="photometry",
+        model="PZflowPDF.pkl",
+        calculated_point_estimates=['mode'],
+    )
 
     # zb_expected = np.array([0.15, 0.14, 0.11, 0.14, 0.12, 0.14, 0.15, 0.16, 0.11, 0.12])
     train_algo = pzflow_nf.PZFlowInformer
     pz_algo = pzflow_nf.PZFlowEstimator
-    results, rerun_results, rerun3_results = one_algo(
+    results, rerun_results, _ = one_algo(
         "PZFlow", train_algo, pz_algo, train_config_dict, estim_config_dict
     )
     # temporarily remove comparison to "expected" values, as we are getting
     # slightly different answers for python3.7 vs python3.8 for some reason
-    #    assert np.isclose(results.ancil['zmode'], zb_expected, atol=0.05).all()
-    assert np.isclose(results.ancil["zmode"], rerun_results.ancil["zmode"], atol=0.05).all()
-
+    #    assert np.isclose(results.ancil['mode'], zb_expected, atol=0.05).all()
+    assert np.isclose(results.ancil["mode"], rerun_results.ancil["mode"], atol=0.05).all()
