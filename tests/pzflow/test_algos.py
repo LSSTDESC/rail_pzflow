@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 import scipy.special
 
-from rail.core.algo_utils import one_algo
+from rail.utils.testing_utils import one_algo
 from rail.core.stage import RailStage
 from rail.estimation.algos import pzflow_nf
 
@@ -57,6 +57,7 @@ def test_pzflow(inputs, zb_expected):
         num_training_epochs=50,
         hdf5_groupname="photometry",
         model="PZflowPDF.pkl",
+        output_mode = "skip_write"
     )
     estim_config_dict = dict(hdf5_groupname="photometry", model="PZflowPDF.pkl")
 
