@@ -57,6 +57,7 @@ def test_pzflow(inputs, zb_expected):
         num_training_epochs=50,
         hdf5_groupname="photometry",
         model="PZflowPDF.pkl",
+        output_mode = "skip_write"
     )
     estim_config_dict = dict(hdf5_groupname="photometry", model="PZflowPDF.pkl")
 
