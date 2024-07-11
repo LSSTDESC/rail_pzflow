@@ -74,7 +74,7 @@ class FlowModeler(Modeler):
 
         Does standard Modeler initialization.
         """
-        super().__init__(self, args, **kwargs)
+        super().__init__(args, **kwargs)
 
         # get the columns we are modeling
         phys_cols = self.config.phys_cols
@@ -178,7 +178,7 @@ class FlowCreator(Creator):
 
         Does standard Creator initialization and also gets the `Flow` object
         """
-        super().__init__(self, args, **kwargs)
+        super().__init__(args, **kwargs)
 
     def run(self):
         """Run method
@@ -265,7 +265,7 @@ class FlowPosterior(PosteriorCalculator):
 
         Does standard PosteriorCalculator initialization
         """
-        super().__init__(self, args, **kwargs)
+        super().__init__(args, **kwargs)
 
     def run(self):
         """Run method
