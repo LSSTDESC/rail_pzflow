@@ -99,10 +99,10 @@ class PZFlowInformer(CatInformer):
                                                     msg="number flow training epochs"))
 
 
-    def __init__(self, args, comm=None):
+    def __init__(self, args, **kwargs):
         """Constructor, build the CatInformer, then do PZFlow specific setup
         """
-        CatInformer.__init__(self, args, comm=comm)
+        super().__init__(self, args, **kwargs)
         usecols = self.config.column_names.copy()
         allcols = usecols.copy()
         if self.config.include_mag_errors:  # only include errors if option set
@@ -179,8 +179,8 @@ class PZFlowEstimator(CatEstimator):
                                                      msg="name of redshift column"))
 
 
-    def __init__(self, args, comm=None):
-        CatEstimator.__init__(self, args, comm=comm)
+    def __init__(self, args, **kwargs):
+        super().__init__(self, args, **kwargs)
         usecols = self.config.column_names.copy()
         allcols = usecols.copy()
         if self.config.include_mag_errors:  #pragma: no cover
