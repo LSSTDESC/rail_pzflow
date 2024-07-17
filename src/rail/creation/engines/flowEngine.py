@@ -69,12 +69,12 @@ class FlowModeler(Modeler):
         ),
     )
 
-    def __init__(self, args, comm=None):
+    def __init__(self, args, **kwargs):
         """Constructor
 
         Does standard Modeler initialization.
         """
-        Modeler.__init__(self, args, comm=comm)
+        super().__init__(args, **kwargs)
 
         # get the columns we are modeling
         phys_cols = self.config.phys_cols
@@ -173,12 +173,12 @@ class FlowCreator(Creator):
     inputs = [("model", FlowHandle)]
     outputs = [("output", PqHandle)]
 
-    def __init__(self, args, comm=None):
+    def __init__(self, args, **kwargs):
         """Constructor
 
         Does standard Creator initialization and also gets the `Flow` object
         """
-        Creator.__init__(self, args, comm=comm)
+        super().__init__(args, **kwargs)
 
     def run(self):
         """Run method
@@ -260,12 +260,12 @@ class FlowPosterior(PosteriorCalculator):
     inputs = [("model", FlowHandle), ("input", PqHandle)]
     outputs = [("output", QPHandle)]
 
-    def __init__(self, args, comm=None):
+    def __init__(self, args, **kwargs):
         """Constructor
 
         Does standard PosteriorCalculator initialization
         """
-        PosteriorCalculator.__init__(self, args, comm=comm)
+        super().__init__(args, **kwargs)
 
     def run(self):
         """Run method
