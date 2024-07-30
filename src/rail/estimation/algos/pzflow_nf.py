@@ -133,17 +133,6 @@ class PZFlowInformer(CatInformer):
         for col in self.config.column_names:
             flowdf.loc[np.isclose(flowdf[col], 99.), col] = self.config.mag_limits[col]
 
-        # compute means and stddevs for StandardScalar transform
-        col_means, col_stds = computemeanstd(flowdf)
-        ref_idx = flowdf.columns.get_loc(self.config.ref_column_name)
-        mag_idx = [flowdf.columns.get_loc(col) for col in self.config.column_names]
-        nlayers = flowdf.shape[1]
-        bijector = Chain(
-            ColorTransform(ref_idx, mag_idx),
-            InvSoftplus(self.config.soft_idx_col, self.config.soft_sharpness),
-            StandardScaler(col_means, col_stds),
-            RollingSplineCoupling(nlayers),
-        )
         self.model = Flow(flowdf.columns, bijector, seed=self.config.flow_seed)
         _ = self.model.train(flowdf[self.usecols], epochs=self.config.num_training_epochs,
                              verbose=True)
