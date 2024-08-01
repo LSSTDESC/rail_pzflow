@@ -133,7 +133,7 @@ class PZFlowInformer(CatInformer):
         for col in self.config.column_names:
             flowdf.loc[np.isclose(flowdf[col], 99.), col] = self.config.mag_limits[col]
 
-        self.model = Flow(flowdf.columns, bijector, seed=self.config.flow_seed)
+        self.model = Flow(flowdf.columns, seed=self.config.flow_seed)
         _ = self.model.train(flowdf[self.usecols], epochs=self.config.num_training_epochs,
                              verbose=True)
         self.model.save(self.get_output('model'))
