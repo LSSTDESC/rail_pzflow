@@ -202,57 +202,64 @@ class FlowCreator(Creator):
 class FlowPosterior(PosteriorCalculator):
     """PosteriorCalculator wrapper for a PZFlow Flow object
 
-    Parameters
-    ----------
-    data : pd.DataFrame
-        Pandas dataframe of the data on which the posteriors are conditioned.
-        Must have all columns in self.flow.data_columns, *except*
-        for the column specified for the posterior (see below).
-    column : str
-        Name of the column for which the posterior is calculated.
-        Must be one of the columns in self.flow.data_columns. However,
-        whether or not this column is present in `data` is irrelevant.
-    grid : np.ndarray
-        Grid over which the posterior is calculated.
-    err_samples : int, optional
-        Number of samples from the error distribution to average over for
-        the posterior calculation. If provided, Gaussian errors are assumed,
-        and method will look for error columns in `inputs`. Error columns
-        must end in `_err`. E.g. the error column for the variable `u` must
-        be `u_err`. Zero error assumed for any missing error columns.
-    seed: int, optional
-        Random seed for drawing samples from the error distribution.
-    marg_rules : dict, optional
-        Dictionary with rules for marginalizing over missing variables.
-        The dictionary must contain the key "flag", which gives the flag
-        that indicates a missing value. E.g. if missing values are given
-        the value 99, the dictionary should contain {"flag": 99}.
-        The dictionary must also contain {"name": callable} for any
-        variables that will need to be marginalized over, where name is
-        the name of the variable, and callable is a callable that takes
-        the row of variables and returns a grid over which to marginalize
-        the variable. E.g. {"y": lambda row: np.linspace(0, row["x"], 10)}.
-        Note: the callable for a given name must *always* return an array
-        of the same length, regardless of the input row.
-        DEFAULT: the default marg_rules dict is
-        {"flag": np.nan,
-        "u": np.linspace(25, 31, 10),}
-    batch_size: int, default=None
-        Size of batches in which to calculate posteriors. If None, all
-        posteriors are calculated simultaneously. This is faster, but
-        requires more memory.
-    nan_to_zero : bool, default=True
-        Whether to convert NaN's to zero probability in the final pdfs.
+    .. code-block:: text
+
+        data : pd.DataFrame
+            Pandas dataframe of the data on which the posteriors are conditioned.
+            Must have all columns in self.flow.data_columns, *except*
+            for the column specified for the posterior (see below).
+
+        column : str
+            Name of the column for which the posterior is calculated.
+            Must be one of the columns in self.flow.data_columns. However,
+            whether or not this column is present in `data` is irrelevant.
+
+        grid : np.ndarray
+            Grid over which the posterior is calculated.
+
+        err_samples : int, optional
+            Number of samples from the error distribution to average over for
+            the posterior calculation. If provided, Gaussian errors are assumed,
+            and method will look for error columns in `inputs`. Error columns
+            must end in `_err`. E.g. the error column for the variable `u` must
+            be `u_err`. Zero error assumed for any missing error columns.
+
+        seed: int, optional
+            Random seed for drawing samples from the error distribution.
+
+        marg_rules : dict, optional
+            Dictionary with rules for marginalizing over missing variables.
+            The dictionary must contain the key "flag", which gives the flag
+            that indicates a missing value. E.g. if missing values are given
+            the value 99, the dictionary should contain {"flag": 99}.
+            The dictionary must also contain {"name": callable} for any
+            variables that will need to be marginalized over, where name is
+            the name of the variable, and callable is a callable that takes
+            the row of variables and returns a grid over which to marginalize
+            the variable. E.g. {"y": lambda row: np.linspace(0, row["x"], 10)}.
+            Note: the callable for a given name must *always* return an array
+            of the same length, regardless of the input row.
+            DEFAULT: the default marg_rules dict is
+            {"flag": np.nan,
+            "u": np.linspace(25, 31, 10),}
+
+        batch_size: int, default=None
+            Size of batches in which to calculate posteriors. If None, all
+            posteriors are calculated simultaneously. This is faster, but
+            requires more memory.
+
+        nan_to_zero : bool, default=True
+            Whether to convert NaN's to zero probability in the final pdfs.
 
     """
 
     name = "FlowPosterior"
     config_options = PosteriorCalculator.config_options.copy()
     config_options.update(
-        grid=list,
-        err_samples=10,
-        seed=12345,
-        marg_rules={"flag": np.nan, "mag_u_lsst": lambda row: np.linspace(25, 31, 10)},
+        grid=Param(list,[],msg="Grid over which the posterior is calculated"),
+        err_samples=Param(int, 10, "Number of samples from the error distribution to average over for the posterior calculation"),
+        seed=Param(int, 12345, "Random seed for drawing samples from the error distribution"),
+        marg_rules=Param(dict, {"flag": np.nan, "mag_u_lsst": lambda row: np.linspace(25, 31, 10)}, "Dictionary with rules for marginalizing over missing variables"),
         batch_size=10000,
         nan_to_zero=True,
     )
