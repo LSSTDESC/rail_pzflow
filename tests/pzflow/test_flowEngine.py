@@ -181,7 +181,7 @@ def test_FlowPosterior(catalog_file, flow_file, tmp_path):
     )
     flowPosterior1_posteriors = flowPosterior1.get_posterior(catalog).data
     # pull the posterior values out of qp!
-    flowPosterior1_posteriors = flowPosterior1_posteriors.objdata()["yvals"]
+    flowPosterior1_posteriors = flowPosterior1_posteriors.objdata["yvals"]
 
     # we will also save the flow and create a FlowPosterior from the saved file
     # then use it to calculate posteriors
@@ -200,7 +200,7 @@ def test_FlowPosterior(catalog_file, flow_file, tmp_path):
     )
     flowPosterior2_posteriors = flowPosterior2.get_posterior(catalog).data
     # pull the posterior values out of qp!
-    flowPosterior2_posteriors = flowPosterior2_posteriors.objdata()["yvals"]
+    flowPosterior2_posteriors = flowPosterior2_posteriors.objdata["yvals"]
 
     # check that all posteriors are the same
     assert np.allclose(flow_posteriors, flowPosterior1_posteriors)
