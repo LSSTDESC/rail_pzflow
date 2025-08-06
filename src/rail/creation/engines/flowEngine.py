@@ -75,6 +75,10 @@ class FlowModeler(Modeler):
         Does standard Modeler initialization.
         """
         super().__init__(args, **kwargs)
+        self.flow = None
+
+
+    def validate(self):
 
         # get the columns we are modeling
         phys_cols = self.config.phys_cols
@@ -189,7 +193,7 @@ class FlowCreator(Creator):
         -----
         Puts the data into the data store under this stages 'output' tag
         """
-        flow = self.get_data("model")
+        flow = self.open_model("model", **self.config)
         if flow is None:  # pragma: no cover
             raise ValueError(
                 "Tried to run a FlowCreator before the `Flow` model is loaded"
@@ -286,8 +290,8 @@ class FlowPosterior(PosteriorCalculator):
         Puts the data into the data store under this stages 'output' tag
         """
         # pull out the flow and the data we want posteriors for
+        flow = self.open_model("model", **self.config)
         data = self.get_data("input")
-        flow = self.get_data("model")
 
         # if no marginalization rules are set, use default values
         if self.config.marg_rules is None:  # pragma: no cover
