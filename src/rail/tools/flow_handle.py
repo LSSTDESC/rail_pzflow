@@ -1,42 +1,30 @@
 """Rail-specific data management"""
 
+from typing import Any
 import os
 import tables_io
+from pzflow import Flow
 
-from rail.core.data import ModelHandle
+from rail.core.data import ModelHandle, ModelLike
 
-class FlowDict(dict):
-    """
-    A specialized dict to keep track of individual flow objects: this is just a dict these additional features
 
-    1. Keys are paths
-    2. Values are flow objects, this is checked at runtime.
-    3. There is a read(path, force=False) method that reads a flow object and inserts it into the dictionary
-    4. There is a single static instance of this class
-    """
+def flow_model_read(modelfile: str) -> ModelLike:
+    """Default function to read model files, simply used pickle.load"""
+    flow = Flow(file=modelfile)
+    return flow
 
-    def __setitem__(self, key, value):
-        """ Add a key-value pair, and check to make sure that the value is a `Flow` object """
-        from pzflow import Flow
-        if not isinstance(value, Flow):  #pragma: no cover
-            raise TypeError(f"Only values of type Flow can be added to a FlowFactory, not {type(value)}")
-        return dict.__setitem__(self, key, value)
 
-    def read(self, path, force=False):
-        """ Read a `Flow` object from disk and add it to this dictionary """
-        from pzflow import Flow
-        if force or path not in self:
-            flow = Flow(file=path)
-            self.__setitem__(path, flow)
-            return flow
-        return self[path]  #pragma: no cover
+def flow_model_write(model: ModelLike, path: str) -> None:
+    """Write the model, this default implementation uses pickle"""
+    model.save(path)
 
 
 class FlowHandle(ModelHandle):
     """
     A wrapper around a file that describes a PZFlow object
     """
-    flow_factory = FlowDict()
+    default_model_read = flow_model_read
+    default_model_write = flow_model_write
 
     suffix = 'pkl'
 
@@ -44,14 +32,14 @@ class FlowHandle(ModelHandle):
     def _open(cls, path, **kwargs):  #pylint: disable=unused-argument
         if kwargs.get('mode', 'r') == 'w':  #pragma: no cover
             raise NotImplementedError("Use FlowHandle.write(), not FlowHandle.open(mode='w')")
-        return cls.flow_factory.read(path)
+        return cls.read(path)
 
     @classmethod
-    def _read(cls, path, **kwargs):
-        """Read and return the data from the associated file """
-        return cls.flow_factory.read(path, **kwargs)
+    def _read(cls, path: str, **kwargs: Any) -> ModelLike:
+        """Read and return the data from the associated file"""
+        return flow_model_read(path)
 
     @classmethod
-    def _write(cls, data, path, **kwargs):
-        return data.save(path)
-
+    def _write(cls, data: ModelLike, path: str, **kwargs: Any) -> None:
+        """Write the data to the associated file"""
+        flow_model_write(data, path)
