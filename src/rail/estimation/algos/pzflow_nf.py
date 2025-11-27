@@ -74,6 +74,7 @@ class PZFlowInformer(CatInformer):
     """Subclass to train a pzflow-based estimator"""
 
     name = "Inform_PZFlowPdf"
+    entrypoint_function = "inform"  # the user-facing science function for this class
     outputs = [("model", FlowHandle)]
     config_options = CatInformer.config_options.copy()
     config_options.update(
@@ -152,6 +153,7 @@ class PZFlowEstimator(CatEstimator):
     """CatEstimator which uses PZFlow"""
 
     name = "PZFlowEstimator"
+    entrypoint_function = "estimate"  # the user-facing science function for this class
     inputs = [("model", FlowHandle), ("input", TableHandle)]
     config_options = CatEstimator.config_options.copy()
     config_options.update(
