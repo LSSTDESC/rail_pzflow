@@ -20,6 +20,7 @@ class FlowModeler(Modeler):
 
     name = "FlowModeler"
     entrypoint_function = "fit_model"  # the user-facing science function for this class
+    interactive_function = "flow_modeler"
     inputs = [("input", TableHandle)]
     outputs = [("model", FlowHandle)]
 
@@ -176,6 +177,7 @@ class FlowCreator(Creator):
 
     name = "FlowCreator"
     entrypoint_function = "sample"  # the user-facing science function for this class
+    interactive_function = "flow_creator"
     inputs = [("model", FlowHandle)]
     outputs = [("output", PqHandle)]
 
@@ -263,6 +265,8 @@ class FlowPosterior(PosteriorCalculator):
     entrypoint_function = (
         "get_posterior"  # the user-facing science function for this class
     )
+    interactive_function = "flow_posterior"
+
     config_options = PosteriorCalculator.config_options.copy()
     config_options.update(
         grid=Param(list, [], msg="Grid over which the posterior is calculated"),
