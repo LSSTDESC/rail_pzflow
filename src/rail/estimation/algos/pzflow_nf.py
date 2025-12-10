@@ -73,7 +73,7 @@ def_errornames = dict(
 class PZFlowInformer(CatInformer):
     """Subclass to train a pzflow-based estimator"""
 
-    name = "Inform_PZFlowPdf"
+    name = "PZFlowInformer"
     entrypoint_function = "inform"  # the user-facing science function for this class
     outputs = [("model", FlowHandle)]
     config_options = CatInformer.config_options.copy()
