@@ -9,8 +9,8 @@ from rail.estimation.algos import pzflow_nf
 sci_ver_str = scipy.__version__.split(".")
 
 
-DS = RailStage.data_store
-DS.__class__.allow_overwrite = True
+# DS = RailStage.data_store
+# DS.__class__.allow_overwrite = True
 
 
 @pytest.mark.parametrize(
