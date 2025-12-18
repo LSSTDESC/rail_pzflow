@@ -15,7 +15,7 @@ classifiers = [
     "Programming Language :: Python",
 ]
 dynamic = ["version"]
-dependencies = ["deprecated", "pz-rail-base>=2.0.0", "pzflow"]
+dependencies = ["deprecated", "pz-rail-base>=2.0.0-dev", "pzflow"]
 
 # On a mac, install optional dependencies with `pip install '.[dev]'` (include the single quotes)
 [project.optional-dependencies]
