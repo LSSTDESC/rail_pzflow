@@ -60,7 +60,7 @@ def test_FlowModeler_mags(catalog_file, tmp_path):
     flow_modeler = FlowModeler.make_stage(**flow_modeler_params)
 
     # train the flow
-    flow_modeler.fit_model()
+    flow_modeler.fit_model(catalog_file)
 
     # load the flow
     trained_flow = Flow(file=trained_flow_path)
@@ -97,7 +97,7 @@ def test_FlowModeler_colors(catalog_file, tmp_path):
     flow_modeler = FlowModeler.make_stage(**flow_modeler_params)
 
     # train the flow
-    flow_modeler.fit_model()
+    flow_modeler.fit_model(catalog_file)
 
     # load the flow
     trained_flow = Flow(file=trained_flow_path)
