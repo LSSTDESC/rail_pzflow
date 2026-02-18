@@ -1,12 +1,13 @@
 """Tests for FlowEngine."""
+
 import numpy as np
 import pytest
 import tables_io
 from pzflow import Flow
 from pzflow.examples import get_example_flow, get_galaxy_data
-
 from rail.core.data import TableHandle
 from rail.core.stage import RailStage
+
 from rail.creation.engines.flowEngine import FlowCreator, FlowModeler, FlowPosterior
 
 
@@ -59,7 +60,7 @@ def test_FlowModeler_mags(catalog_file, tmp_path):
     flow_modeler = FlowModeler.make_stage(**flow_modeler_params)
 
     # train the flow
-    flow_modeler.fit_model()
+    flow_modeler.fit_model(catalog_file)
 
     # load the flow
     trained_flow = Flow(file=trained_flow_path)
@@ -96,7 +97,7 @@ def test_FlowModeler_colors(catalog_file, tmp_path):
     flow_modeler = FlowModeler.make_stage(**flow_modeler_params)
 
     # train the flow
-    flow_modeler.fit_model()
+    flow_modeler.fit_model(catalog_file)
 
     # load the flow
     trained_flow = Flow(file=trained_flow_path)
