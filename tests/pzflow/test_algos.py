@@ -1,16 +1,12 @@
 import numpy as np
 import pytest
 import scipy.special
-
-from rail.utils.testing_utils import one_algo
 from rail.core.stage import RailStage
+from rail.utils.testing_utils import one_algo
+
 from rail.estimation.algos import pzflow_nf
 
 sci_ver_str = scipy.__version__.split(".")
-
-
-DS = RailStage.data_store
-DS.__class__.allow_overwrite = True
 
 
 @pytest.mark.parametrize(
@@ -57,7 +53,7 @@ def test_pzflow(inputs, zb_expected):
         num_training_epochs=50,
         hdf5_groupname="photometry",
         model="PZflowPDF.pkl",
-        output_mode = "skip_write"
+        output_mode="skip_write",
     )
     estim_config_dict = dict(hdf5_groupname="photometry", model="PZflowPDF.pkl")
 
@@ -70,5 +66,6 @@ def test_pzflow(inputs, zb_expected):
     # temporarily remove comparison to "expected" values, as we are getting
     # slightly different answers for python3.7 vs python3.8 for some reason
     #    assert np.isclose(results.ancil['zmode'], zb_expected, atol=0.05).all()
-    assert np.isclose(results.ancil["zmode"], rerun_results.ancil["zmode"], atol=0.05).all()
-
+    assert np.isclose(
+        results.ancil["zmode"], rerun_results.ancil["zmode"], atol=0.05
+    ).all()

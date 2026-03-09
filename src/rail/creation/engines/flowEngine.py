@@ -7,8 +7,9 @@ from ceci.config import StageParameter as Param
 from pzflow import Flow
 from pzflow.bijectors import Chain, ColorTransform, RollingSplineCoupling, ShiftBounds
 from rail.core.data import PqHandle, QPHandle, TableHandle
-from rail.tools.flow_handle import FlowHandle
 from rail.creation.engine import Creator, Modeler, PosteriorCalculator
+
+from rail.tools.flow_handle import FlowHandle
 
 
 class FlowModeler(Modeler):
@@ -18,6 +19,8 @@ class FlowModeler(Modeler):
     """
 
     name = "FlowModeler"
+    entrypoint_function = "fit_model"  # the user-facing science function for this class
+    interactive_function = "flow_modeler"
     inputs = [("input", TableHandle)]
     outputs = [("model", FlowHandle)]
 
@@ -76,7 +79,6 @@ class FlowModeler(Modeler):
         """
         super().__init__(args, **kwargs)
         self.flow = None
-
 
     def validate(self):
 
@@ -174,6 +176,8 @@ class FlowCreator(Creator):
     """Creator wrapper for a PZFlow Flow object."""
 
     name = "FlowCreator"
+    entrypoint_function = "sample"  # the user-facing science function for this class
+    interactive_function = "flow_creator"
     inputs = [("model", FlowHandle)]
     outputs = [("output", PqHandle)]
 
@@ -258,12 +262,27 @@ class FlowPosterior(PosteriorCalculator):
     """
 
     name = "FlowPosterior"
+    entrypoint_function = (
+        "get_posterior"  # the user-facing science function for this class
+    )
+    interactive_function = "flow_posterior"
+
     config_options = PosteriorCalculator.config_options.copy()
     config_options.update(
-        grid=Param(list,[],msg="Grid over which the posterior is calculated"),
-        err_samples=Param(int, 10, "Number of samples from the error distribution to average over for the posterior calculation"),
-        seed=Param(int, 12345, "Random seed for drawing samples from the error distribution"),
-        marg_rules=Param(dict, {"flag": np.nan, "mag_u_lsst": lambda row: np.linspace(25, 31, 10)}, "Dictionary with rules for marginalizing over missing variables"),
+        grid=Param(list, [], msg="Grid over which the posterior is calculated"),
+        err_samples=Param(
+            int,
+            10,
+            "Number of samples from the error distribution to average over for the posterior calculation",
+        ),
+        seed=Param(
+            int, 12345, "Random seed for drawing samples from the error distribution"
+        ),
+        marg_rules=Param(
+            dict,
+            {"flag": np.nan, "mag_u_lsst": lambda row: np.linspace(25, 31, 10)},
+            "Dictionary with rules for marginalizing over missing variables",
+        ),
         batch_size=10000,
         nan_to_zero=True,
     )

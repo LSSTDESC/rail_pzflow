@@ -6,13 +6,13 @@ future update
 """
 
 import numpy as np
-
-from ceci.config import StageParameter as Param
-from rail.estimation.estimator import CatEstimator, CatInformer
-from rail.core.data import TableHandle
-from rail.tools.flow_handle import FlowHandle
 import pandas as pd
 import qp
+from ceci.config import StageParameter as Param
+from rail.core.data import TableHandle
+from rail.estimation.estimator import CatEstimator, CatInformer
+
+from rail.tools.flow_handle import FlowHandle
 
 
 def computemeanstd(df):
@@ -73,7 +73,9 @@ def_errornames = dict(
 class PZFlowInformer(CatInformer):
     """Subclass to train a pzflow-based estimator"""
 
-    name = "Inform_PZFlowPdf"
+    name = "PZFlowInformer"
+    entrypoint_function = "inform"  # the user-facing science function for this class
+    interactive_function = "pz_flow_informer"
     outputs = [("model", FlowHandle)]
     config_options = CatInformer.config_options.copy()
     config_options.update(
@@ -121,8 +123,13 @@ class PZFlowInformer(CatInformer):
         This is mostly based off of the pzflow example notebook
         """
         from pzflow import Flow
-        from pzflow.bijectors import Chain, ColorTransform, InvSoftplus
-        from pzflow.bijectors import StandardScaler, RollingSplineCoupling
+        from pzflow.bijectors import (
+            Chain,
+            ColorTransform,
+            InvSoftplus,
+            RollingSplineCoupling,
+            StandardScaler,
+        )
 
         if self.config.hdf5_groupname:
             training_data = self.get_data("input")[self.config.hdf5_groupname]
@@ -153,6 +160,8 @@ class PZFlowEstimator(CatEstimator):
     """CatEstimator which uses PZFlow"""
 
     name = "PZFlowEstimator"
+    entrypoint_function = "estimate"  # the user-facing science function for this class
+    interactive_function = "pz_flow_estimator"
     inputs = [("model", FlowHandle), ("input", TableHandle)]
     config_options = CatEstimator.config_options.copy()
     config_options.update(

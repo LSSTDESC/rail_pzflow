@@ -1,10 +1,10 @@
 """Rail-specific data management"""
 
-from typing import Any
 import os
+from typing import Any
+
 import tables_io
 from pzflow import Flow
-
 from rail.core.data import ModelHandle, ModelLike
 
 
@@ -23,15 +23,18 @@ class FlowHandle(ModelHandle):
     """
     A wrapper around a file that describes a PZFlow object
     """
+
     default_model_read = flow_model_read
     default_model_write = flow_model_write
 
-    suffix = 'pkl'
+    suffix = "pkl"
 
     @classmethod
-    def _open(cls, path, **kwargs):  #pylint: disable=unused-argument
-        if kwargs.get('mode', 'r') == 'w':  #pragma: no cover
-            raise NotImplementedError("Use FlowHandle.write(), not FlowHandle.open(mode='w')")
+    def _open(cls, path, **kwargs):  # pylint: disable=unused-argument
+        if kwargs.get("mode", "r") == "w":  # pragma: no cover
+            raise NotImplementedError(
+                "Use FlowHandle.write(), not FlowHandle.open(mode='w')"
+            )
         return cls.read(path)
 
     @classmethod
