@@ -147,7 +147,13 @@ class PZFlowInformer(CatInformer):
         _ = self.model.train(
             flowdf[self.usecols], epochs=self.config.num_training_epochs, verbose=True
         )
-        self.model.save(self.get_output("model"))
+
+        # add the flow to the model handle
+        self.add_data("model", self.model)
+
+        # save the flow file
+        if self.config.output_mode != "return":
+            self.model.save(self.get_output("model"))
 
 
 class PZFlowEstimator(CatEstimator):
