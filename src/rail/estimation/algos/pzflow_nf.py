@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 import qp
 from ceci.config import StageParameter as Param
+from rail.core.common_params import SHARED_PARAMS
 from rail.core.data import TableHandle
 from rail.estimation.estimator import CatEstimator, CatInformer
 
@@ -79,20 +80,20 @@ class PZFlowInformer(CatInformer):
     outputs = [("model", FlowHandle)]
     config_options = CatInformer.config_options.copy()
     config_options.update(
-        zmin=Param(float, 0.0, msg="min z"),
-        zmax=Param(float, 3.0, msg="max_z"),
-        nzbins=Param(int, 301, msg="num z bins"),
-        flow_seed=Param(int, 0, msg="seed for flow"),
-        ref_column_name=Param(str, "mag_i_lsst", msg="name for reference column"),
+        zmin=SHARED_PARAMS,
+        zmax=SHARED_PARAMS,
+        nzbins=SHARED_PARAMS,
+        seed=Param(int, 0, msg="seed for flow"),
+        ref_band=SHARED_PARAMS,
         column_names=Param(list, refcols, msg="column names to be used in flow"),
-        mag_limits=Param(dict, def_maglims, msg="1 sigma mag limits"),
+        mag_limits=SHARED_PARAMS,
         include_mag_errors=Param(
             bool,
             False,
             msg="Boolean flag on whether to marginalize"
             "over mag errors (NOTE: much slower on CPU!)",
         ),
-        error_names_dict=Param(
+        err_names_dict=Param(
             dict, def_errornames, msg="dictionary to rename error columns"
         ),
         n_error_samples=Param(
@@ -100,8 +101,8 @@ class PZFlowInformer(CatInformer):
         ),
         soft_sharpness=Param(int, 10, msg="sharpening paremeter for SoftPlus"),
         soft_idx_col=Param(int, 0, msg="index column for SoftPlus"),
-        redshift_column_name=Param(str, "redshift", msg="name of redshift column"),
-        num_training_epochs=Param(int, 50, msg="number flow training epochs"),
+        redshift_col=SHARED_PARAMS,
+        n_training_epochs=Param(int, 50, msg="number flow training epochs"),
     )
 
     def __init__(self, args, **kwargs):
@@ -110,10 +111,10 @@ class PZFlowInformer(CatInformer):
         usecols = self.config.column_names.copy()
         allcols = usecols.copy()
         if self.config.include_mag_errors:  # only include errors if option set
-            for item in self.config.error_names_dict:
-                allcols.append(self.config.error_names_dict[item])
-        usecols.append(self.config.redshift_column_name)
-        allcols.append(self.config.redshift_column_name)
+            for item in self.config.err_names_dict:
+                allcols.append(self.config.err_names_dict[item])
+        usecols.append(self.config.redshift_col)
+        allcols.append(self.config.redshift_col)
         self.usecols = usecols
         self.allcols = allcols
 
@@ -143,9 +144,9 @@ class PZFlowInformer(CatInformer):
         for col in self.config.column_names:
             flowdf.loc[np.isclose(flowdf[col], 99.0), col] = self.config.mag_limits[col]
 
-        self.model = Flow(flowdf.columns, seed=self.config.flow_seed)
+        self.model = Flow(flowdf.columns, seed=self.config.seed)
         _ = self.model.train(
-            flowdf[self.usecols], epochs=self.config.num_training_epochs, verbose=True
+            flowdf[self.usecols], epochs=self.config.n_training_epochs, verbose=True
         )
 
         # add the flow to the model handle
@@ -165,26 +166,26 @@ class PZFlowEstimator(CatEstimator):
     inputs = [("model", FlowHandle), ("input", TableHandle)]
     config_options = CatEstimator.config_options.copy()
     config_options.update(
-        zmin=Param(float, 0.0, msg="The minimum redshift of the z grid"),
-        zmax=Param(float, 3.0, msg="The maximum redshift of the z grid"),
-        nzbins=Param(int, 301, msg="The number of gridpoints in the z grid"),
-        flow_seed=Param(int, 0, msg="seed for flow"),
-        ref_column_name=Param(str, "mag_i_lsst", msg="name for reference column"),
+        zmin=SHARED_PARAMS,
+        zmax=SHARED_PARAMS,
+        nzbins=SHARED_PARAMS,
+        seed=Param(int, 0, msg="seed for flow"),
+        ref_band=SHARED_PARAMS,
         column_names=Param(list, refcols, msg="column names to be used in flow"),
-        mag_limits=Param(dict, def_maglims, msg="1 sigma mag limits"),
+        mag_limits=SHARED_PARAMS,
         include_mag_errors=Param(
             bool,
             False,
             msg="Boolean flag on whether to marginalize"
             "over mag errors (NOTE: much slower on CPU!)",
         ),
-        error_names_dict=Param(
+        err_names_dict=Param(
             dict, def_errornames, msg="dictionary to rename error columns"
         ),
         n_error_samples=Param(
             int, 1000, msg="umber of error samples in marginalization"
         ),
-        redshift_column_name=Param(str, "redshift", msg="name of redshift column"),
+        redshift_col=SHARED_PARAMS,
     )
 
     def __init__(self, args, **kwargs):
@@ -192,10 +193,10 @@ class PZFlowEstimator(CatEstimator):
         usecols = self.config.column_names.copy()
         allcols = usecols.copy()
         if self.config.include_mag_errors:  # pragma: no cover
-            for item in self.config.error_names_dict:
-                allcols.append(self.config.error_names_dict[item])
-        usecols.append(self.config.redshift_column_name)
-        allcols.append(self.config.redshift_column_name)
+            for item in self.config.err_names_dict:
+                allcols.append(self.config.err_names_dict[item])
+        usecols.append(self.config.redshift_col)
+        allcols.append(self.config.redshift_col)
         self.usecols = usecols
         self.allcols = allcols
         self.zgrid = None
@@ -212,7 +213,7 @@ class PZFlowEstimator(CatEstimator):
         flow_df = test_df[self.allcols]
         # replace nondetects
         if self.config.include_mag_errors:  # pragma: no cover
-            err_names = list(self.config.error_names_dict.values())
+            err_names = list(self.config.err_names_dict.values())
             for col, err_col in zip(self.config.column_names, err_names):
                 # set error to 0.7525 for 1 sigma detection 2.5log10(2) = .75257
                 flow_df.loc[np.isclose(flow_df[col], 99.0), err_col] = 0.75257
@@ -229,14 +230,14 @@ class PZFlowEstimator(CatEstimator):
         if self.config.include_mag_errors:  # pragma: no cover
             pdfs = self.model.posterior(
                 flow_df,
-                column=self.config.redshift_column_name,
-                seed=self.config.flow_seed,
+                column=self.config.redshift_col,
+                seed=self.config.seed,
                 grid=self.zgrid,
                 err_samples=self.config.n_error_samples,
             )
         else:
             pdfs = self.model.posterior(
-                flow_df, column=self.config.redshift_column_name, grid=self.zgrid
+                flow_df, column=self.config.redshift_col, grid=self.zgrid
             )
         zmode = np.array([self.zgrid[np.argmax(pdf)] for pdf in pdfs]).flatten()
         qp_distn = qp.Ensemble(qp.interp, data=dict(xvals=self.zgrid, yvals=pdfs))
