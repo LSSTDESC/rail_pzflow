@@ -60,7 +60,7 @@ class FlowModeler(Modeler):
             16,
             msg="The number of spline knots in the normalizing flow.",
         ),
-        num_training_epochs=Param(
+        n_training_epochs=Param(
             int,
             30,
             msg="The number of training epochs.",
@@ -161,7 +161,7 @@ class FlowModeler(Modeler):
         # train the flow
         _ = self.flow.train(
             catalog,
-            epochs=self.config.num_training_epochs,
+            epochs=self.config.n_training_epochs,
             verbose=True,
             seed=self.config.seed,
         )
