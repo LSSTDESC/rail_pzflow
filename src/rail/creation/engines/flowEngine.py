@@ -121,7 +121,7 @@ class FlowModeler(Modeler):
             # chain all the bijectors together
             bijector = Chain(
                 ColorTransform(ref_idx, mag_idx),
-                ShiftBounds(mins, maxs),
+                ShiftBounds(jnp.array(mins), jnp.array(maxs)),
                 rsc,
             )
         else:
@@ -139,7 +139,7 @@ class FlowModeler(Modeler):
 
             # chain the bijectors
             bijector = Chain(
-                ShiftBounds(mins, maxs),
+                ShiftBounds(jnp.array(mins), jnp.array(maxs)),
                 rsc,
             )
 
