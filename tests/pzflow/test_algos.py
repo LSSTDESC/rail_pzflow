@@ -1,6 +1,7 @@
 import numpy as np
 import pytest
 import scipy.special
+import pandas as pd
 from rail.core.stage import RailStage
 from rail.core.data import TableHandle
 from rail.utils.testing_utils import one_algo
