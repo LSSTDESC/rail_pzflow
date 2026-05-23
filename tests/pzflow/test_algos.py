@@ -5,6 +5,7 @@ import pandas as pd
 from rail.core.stage import RailStage
 from rail.core.data import TableHandle
 from rail.utils.testing_utils import one_algo
+from rail.utils.path_utils import find_rail_file
 
 from rail.estimation.algos import pzflow_nf
 from rail.creation.degraders.pzflow_degrader import PZFlowNoisifier
@@ -95,7 +96,9 @@ def data():
 
 
 def test_PZFlowNoisifier(data):
-    model = "../example_data/model.pkl"
+    model = find_rail_file(
+            "examples_data/creation_data/data/pzflow_noisifier_model.pkl"
+        ),
     mag_col_template = {}
     conditional_col_map = {}
     error_col_map = {}
