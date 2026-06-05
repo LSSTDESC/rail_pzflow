@@ -73,16 +73,17 @@ class PZFlowNoisifier(Noisifier):
         data_df = pd.DataFrame(data)
 
         flow_cols = self.noiseModel.conditional_columns
-        conditional_cols = []
+        conditional_cols = {}
         for col in flow_cols:
             if col in (self.config.mag_col_template).keys():
-                conditional_cols.append(self.config.mag_col_template[col])
+                conditional_cols[self.config.mag_col_template[col]] = col
             elif col in (self.config.conditional_col_map).keys():
-                conditional_cols.append(self.config.conditional_col_map[col])
+                conditional_cols[self.config.conditional_col_map[col]] = col
             else:
                 raise ValueError(f"Column: {col} required by the model is not provided.")
-        conditions = data_df[conditional_cols]
-
+        
+        conditions = data_df[conditional_cols.keys()].rename(columns=conditional_cols)
+        
         samples = self.noiseModel.sample(
             nsamples=1,
             conditions=conditions,
@@ -98,14 +99,14 @@ class PZFlowNoisifier(Noisifier):
         # decorreation:
         if self.config.decorrelate == True:
             # update conditions
-            conditions = data_df[conditional_cols]
+            conditions = data_df[conditional_cols.keys()].rename(columns=conditional_cols)
             # recompute error
             samples = self.noiseModel.sample(
             nsamples=1,
             conditions=conditions,
             save_conditions=False,
             seed=self.config.seed,
-        )
+            )
         
         # The flow's data_columns are assumed to correspond to bands in the same order
         # as self.config.bands. Rename them to the desired output column names.

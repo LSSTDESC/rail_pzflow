@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import pytest
 import scipy.special
@@ -97,8 +98,7 @@ def data():
 
 def test_PZFlowNoisifier(data):
     model = find_rail_file(
-            "examples_data/creation_data/data/pzflow_noisifier_model.pkl"
-        ),
+            "examples_data/creation_data/data/pzflow_noisifier_model.pkl")
     mag_col_template = {}
     conditional_col_map = {}
     error_col_map = {}
@@ -107,14 +107,14 @@ def test_PZFlowNoisifier(data):
         conditional_col_map[f'depth_{band}']=f'depth_{band}'
         error_col_map[f'delta_mag_{band}']=f'mag_{band}_err'
     
-    pzflow_degrade_model = PZFlowNoisifier.make_stage(model=model,
+    pzflow_degrader = PZFlowNoisifier.make_stage(model=model,
                                                      mag_col_template = mag_col_template,
                                                      conditional_col_map=conditional_col_map,
                                                       error_col_map=error_col_map,
                                                       decorrelate=True
                                                      )
-    degraded_df = pzflow_degrade_model(data)
+    degraded_df = pzflow_degrader(data)
     
     os.remove(
-            degrader_ext.get_output(degrader_ext.get_aliased_tag("output"), final_name=True)
+            pzflow_degrader.get_output(pzflow_degrader.get_aliased_tag("output"), final_name=True)
         )
