@@ -1,10 +1,17 @@
+import os
 import numpy as np
 import pytest
 import scipy.special
+import pandas as pd
 from rail.core.stage import RailStage
+from rail.core.data import TableHandle
 from rail.utils.testing_utils import one_algo
+from rail.utils.path_utils import find_rail_file
 
 from rail.estimation.algos import pzflow_nf
+from rail.creation.degraders.pzflow_degrader import PZFlowNoisifier
+
+
 
 sci_ver_str = scipy.__version__.split(".")
 
@@ -69,3 +76,45 @@ def test_pzflow(inputs, zb_expected):
     assert np.isclose(
         results.ancil["zmode"], rerun_results.ancil["zmode"], atol=0.05
     ).all()
+
+
+@pytest.fixture
+def data():
+    """Some dummy data to use below."""
+
+    # generate random normal data
+    rng = np.random.default_rng(0)
+    x = rng.normal(loc=24.5, scale=1, size=(100, 13))
+
+    # replace redshifts with reasonable values
+    x[:, 0] = np.linspace(0, 2, x.shape[0])
+    x[:, 7:] = x[:, 7:] + 1
+
+    # return data in handle wrapping a pandas DataFrame
+    df = pd.DataFrame(x, columns=["redshift", "u", "g", "r", "i", "z", "y",
+                                 "depth_u", "depth_g", "depth_r", "depth_i" ,"depth_z", "depth_y"])
+    return TableHandle("data", df, path="dummy.pd")
+
+
+def test_PZFlowNoisifier(data):
+    model = find_rail_file(
+            "examples_data/creation_data/data/pzflow_noisifier_model.pkl")
+    mag_col_template = {}
+    conditional_col_map = {}
+    error_col_map = {}
+    for band in "ugrizy":
+        mag_col_template[f'true_mag_{band}']=f'{band}'
+        conditional_col_map[f'depth_{band}']=f'depth_{band}'
+        error_col_map[f'delta_mag_{band}']=f'mag_{band}_err'
+    
+    pzflow_degrader = PZFlowNoisifier.make_stage(model=model,
+                                                     mag_col_template = mag_col_template,
+                                                     conditional_col_map=conditional_col_map,
+                                                      error_col_map=error_col_map,
+                                                      decorrelate=True
+                                                     )
+    degraded_df = pzflow_degrader(data)
+    
+    os.remove(
+            pzflow_degrader.get_output(pzflow_degrader.get_aliased_tag("output"), final_name=True)
+        )

@@ -10,7 +10,7 @@ from rail.core.data import ModelHandle, ModelLike
 
 def flow_model_read(modelfile: str) -> ModelLike:
     """Default function to read model files, simply used pickle.load"""
-    flow = Flow(file=modelfile)
+    flow = Flow.from_file(modelfile)
     return flow
 
 

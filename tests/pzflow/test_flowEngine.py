@@ -63,7 +63,7 @@ def test_FlowModeler_mags(catalog_file, tmp_path):
     flow_modeler.fit_model(catalog_file)
 
     # load the flow
-    trained_flow = Flow(file=trained_flow_path)
+    trained_flow = Flow.from_file(trained_flow_path)
 
 
 def test_FlowModeler_colors(catalog_file, tmp_path):
@@ -100,7 +100,7 @@ def test_FlowModeler_colors(catalog_file, tmp_path):
     flow_modeler.fit_model(catalog_file)
 
     # load the flow
-    trained_flow = Flow(file=trained_flow_path)
+    trained_flow = Flow.from_file(trained_flow_path)
 
 
 def test_FlowCreator(flow_file, tmp_path):
@@ -115,7 +115,7 @@ def test_FlowCreator(flow_file, tmp_path):
     seed = 0
 
     # load the example flow
-    flow = Flow(file=flow_file)
+    flow = Flow.from_file(flow_file)
 
     # draw samples directly from PZFlow
     flow_samples = flow.sample(n_samples, seed=seed)
@@ -157,7 +157,7 @@ def test_FlowPosterior(catalog_file, flow_file, tmp_path):
     catalog = tables_io.read(catalog_file)
 
     # and the example flow
-    flow = Flow(file=flow_file)
+    flow = Flow.from_file(flow_file)
 
     # set up a redshift grid to calculate posteriors
     # we will make it small so the test is quick
