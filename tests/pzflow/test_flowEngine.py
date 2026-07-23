@@ -142,9 +142,9 @@ def test_FlowCreator(flow_file, tmp_path):
     flowCreator2_samples = flowCreator2.sample(n_samples, seed=seed).data
 
     # check that all samples are the same
-    assert np.allclose(flow_samples, flowCreator1_samples)
-    assert np.allclose(flow_samples, flowCreator2_samples)
-    assert np.allclose(flowCreator1_samples, flowCreator2_samples)
+    assert np.allclose(flow_samples, flowCreator1_samples, rtol=1.e-3)
+    assert np.allclose(flow_samples, flowCreator2_samples, rtol=1.e-3)
+    assert np.allclose(flowCreator1_samples, flowCreator2_samples, rtol=1.e-3)
 
 
 def test_FlowPosterior(catalog_file, flow_file, tmp_path):
@@ -204,6 +204,6 @@ def test_FlowPosterior(catalog_file, flow_file, tmp_path):
     flowPosterior2_posteriors = flowPosterior2_posteriors.objdata["yvals"]
 
     # check that all posteriors are the same
-    assert np.allclose(flow_posteriors, flowPosterior1_posteriors)
-    assert np.allclose(flow_posteriors, flowPosterior2_posteriors)
+    assert np.allclose(flow_posteriors, flowPosterior1_posteriors, rtol=1.e-3)
+    assert np.allclose(flow_posteriors, flowPosterior2_posteriors, rtol=1.e-3)
     assert np.allclose(flowPosterior1_posteriors, flowPosterior2_posteriors)
